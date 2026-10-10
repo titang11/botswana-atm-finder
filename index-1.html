@@ -1,173 +1,895 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#061426">
-<title>BW ATM Finder — 3D Globe</title>
-<style>
-:root{--primary:#008f9a;--bg:#061426;--panel:#0b1d32;--text:#eef7ff;--muted:#9fb6cc;--border:#203b59}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
-header{height:66px;padding:10px 16px;display:flex;align-items:center;gap:12px;background:#07182b;border-bottom:1px solid var(--border);position:relative;z-index:5}
-.logo{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#00a9b5,#0758bf);font-size:22px}
-header h1{font-size:18px}header p{font-size:12px;color:var(--muted)}
-.layout{height:calc(100vh - 66px);display:grid;grid-template-columns:360px minmax(0,1fr)}
-.sidebar{background:#091a2d;border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0;z-index:2}
-.filters{padding:14px;display:flex;flex-direction:column;gap:9px;border-bottom:1px solid var(--border)}
-input,select{width:100%;min-width:0;background:#061426;border:1px solid #2a4968;border-radius:9px;padding:11px;color:white;font:inherit;font-size:13px}
-.row{display:flex;gap:8px}.row>*{flex:1}
-button{border:0;border-radius:9px;padding:10px 12px;background:#0788ed;color:white;font-weight:700;font-size:12px;cursor:pointer}
-button.secondary{background:#132d47;border:1px solid #2a4a68}
-button:disabled{opacity:.5}
-#count{font-size:12px;color:var(--muted)}
-#atmList{overflow-y:auto;flex:1;min-height:0;padding:10px;display:flex;flex-direction:column;gap:9px}
-.atm-card{background:#0c2035;border:1px solid #203d5a;border-radius:11px;padding:12px;cursor:pointer}
-.atm-card:hover{border-color:#00aab7}.atm-title{font-weight:750;color:#79dbe1;font-size:14px}
-.bank{font-size:12px;font-weight:650;margin-top:3px}.address{font-size:12px;line-height:1.45;color:var(--muted);margin:6px 0}
-.badge{display:inline-block;font-size:10px;padding:3px 7px;border-radius:20px;background:#28405a;color:#d7e8f8}
-.verified{background:#174b3c;color:#aaf0d0}.unverified{background:#58421d;color:#ffdf9a}
-.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}.tag{font-size:10px;padding:3px 6px;background:#133b43;color:#a8eff0;border-radius:5px}
-.directions{display:inline-block;margin-top:8px;color:#80c9ff;text-decoration:none;font-size:12px;font-weight:700}
-.map-area{position:relative;min-width:0;min-height:0;background:#020916}
-#globeViz{width:100%;height:100%;min-height:300px}
-.map-tools{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
-.map-tools>*{pointer-events:auto}
-.map-chip{font-size:12px;padding:9px 11px;border:1px solid #294765;background:#061426d9;border-radius:10px;color:#dceeff}
-.map-actions{position:absolute;right:12px;bottom:12px;display:flex;gap:7px}
-.notice{font-size:11px;color:var(--muted);line-height:1.45;padding:10px 13px;border-top:1px solid var(--border)}
-.empty{padding:15px;text-align:center;color:var(--muted);font-size:13px;line-height:1.5}
-@media(max-width:760px){
- body{overflow:auto;height:100dvh}.layout{height:calc(100dvh - 66px);display:flex;flex-direction:column}
- .map-area{height:48%;min-height:260px;flex:none;order:0}
- .sidebar{height:52%;min-height:0;order:1;border-right:0}
- .filters{padding:10px;gap:7px}#atmList{padding:8px}
- .map-tools{top:8px;left:8px;right:8px}.map-chip{font-size:11px;padding:7px 8px}.map-actions{right:8px;bottom:8px}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#061426">
+  <meta name="description" content="Find ATMs and bank locations across Botswana with an interactive 3D globe.">
+  <title>BW ATM Finder — Botswana</title>
+
+  <style>
+    :root {
+      --bg: #061426;
+      --panel: rgba(12, 32, 54, 0.76);
+      --panel-strong: rgba(9, 25, 44, 0.94);
+      --border: rgba(166, 211, 239, 0.17);
+      --text: #eef8ff;
+      --muted: #9cb2c8;
+      --teal: #42e6d0;
+      --blue: #63a9ff;
+      --green: #4ee69a;
+      --orange: #ffb45d;
+      --red: #ff7777;
+      --radius: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      background:
+        radial-gradient(ellipse at 15% 0%, rgba(0, 160, 170, .15), transparent 38%),
+        radial-gradient(ellipse at 95% 35%, rgba(59, 111, 220, .14), transparent 38%),
+        var(--bg);
+    }
+
+    button, input, select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(1600px, 100%);
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .glass {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 18px 55px rgba(0, 0, 0, .2);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 18px 22px;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .brand-icon {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+      border-radius: 15px;
+      color: #041b29;
+      font-size: 25px;
+      background: linear-gradient(135deg, var(--teal), var(--blue));
+      box-shadow: 0 0 25px rgba(66, 230, 208, .2);
+    }
+
+    h1, h2, h3, p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 4px;
+      font-size: clamp(21px, 3vw, 30px);
+      letter-spacing: -.7px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 0;
+    }
+
+    .header-tag {
+      padding: 9px 13px;
+      border: 1px solid rgba(66, 230, 208, .25);
+      border-radius: 30px;
+      background: rgba(66, 230, 208, .08);
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(320px, 400px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .sidebar {
+      padding: 20px;
+      min-width: 0;
+    }
+
+    .section-title {
+      margin-bottom: 14px;
+      font-size: 16px;
+      font-weight: 750;
+    }
+
+    .field {
+      margin-bottom: 13px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    input, select {
+      display: block;
+      width: 100%;
+      min-height: 45px;
+      padding: 11px 13px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+      color: var(--text);
+      background: rgba(3, 15, 29, .7);
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    input::placeholder {
+      color: #7f97ad;
+    }
+
+    input:focus, select:focus {
+      border-color: rgba(66, 230, 208, .65);
+      box-shadow: 0 0 0 3px rgba(66, 230, 208, .08);
+    }
+
+    select option {
+      color: var(--text);
+      background: #0b1d32;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin: 15px 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      min-height: 43px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      background: rgba(255, 255, 255, .055);
+      font-size: 13px;
+      font-weight: 700;
+      transition: transform .15s, background .15s, border-color .15s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, .1);
+      border-color: rgba(166, 211, 239, .35);
+    }
+
+    .btn-primary {
+      color: #031c28;
+      border-color: transparent;
+      background: linear-gradient(110deg, var(--teal), #70baff);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(110deg, #77f4e4, #91c8ff);
+    }
+
+    .btn:disabled {
+      opacity: .6;
+      cursor: wait;
+      transform: none;
+    }
+
+    .status {
+      margin: 12px 0;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, .025);
+      font-size: 12px;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+
+    .status.success {
+      color: #9bffd0;
+      border-color: rgba(78, 230, 154, .3);
+      background: rgba(78, 230, 154, .06);
+    }
+
+    .status.error {
+      color: #ffb1b1;
+      border-color: rgba(255, 119, 119, .3);
+      background: rgba(255, 119, 119, .06);
+    }
+
+    .status.warning {
+      color: #ffd6a2;
+      border-color: rgba(255, 180, 93, .3);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 17px 0;
+    }
+
+    .stat {
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .035);
+    }
+
+    .stat-label {
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .stat-value {
+      font-size: 23px;
+      font-weight: 800;
+      letter-spacing: -.5px;
+    }
+
+    .stat-value.teal {
+      color: var(--teal);
+    }
+
+    .results-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 20px 0 11px;
+    }
+
+    .results-heading h2 {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .small-muted {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .atm-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 470px;
+      overflow-y: auto;
+      padding-right: 3px;
+    }
+
+    .atm-card {
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(3, 16, 31, .45);
+      transition: border-color .2s, background .2s;
+    }
+
+    .atm-card:hover {
+      border-color: rgba(66, 230, 208, .4);
+      background: rgba(18, 52, 72, .5);
+    }
+
+    .atm-card h3 {
+      margin: 0 0 6px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .atm-card p {
+      margin: 4px 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .pill {
+      display: inline-block;
+      flex-shrink: 0;
+      padding: 5px 7px;
+      border-radius: 30px;
+      color: var(--green);
+      background: rgba(78, 230, 154, .1);
+      font-size: 10px;
+      font-weight: 750;
+    }
+
+    .pill.unverified {
+      color: var(--orange);
+      background: rgba(255, 180, 93, .1);
+    }
+
+    .distance {
+      color: var(--teal) !important;
+      font-weight: 750;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 11px;
+    }
+
+    .card-actions a, .card-actions button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--text);
+      background: rgba(255, 255, 255, .045);
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .card-actions a:hover, .card-actions button:hover {
+      border-color: var(--teal);
+    }
+
+    .empty-state {
+      padding: 22px 14px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .map-panel {
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .map-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 17px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .map-header h2 {
+      margin: 0 0 4px;
+      font-size: 16px;
+    }
+
+    .map-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .map-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .map-tools .btn {
+      min-height: 36px;
+      padding: 8px 10px;
+      font-size: 11px;
+    }
+
+    #globeWrap {
+      position: relative;
+      min-height: 450px;
+      height: min(70vh, 720px);
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse at center, rgba(19, 83, 108, .18), transparent 65%),
+        rgba(2, 12, 25, .38);
+    }
+
+    #globeViz {
+      position: absolute;
+      inset: 0;
+    }
+
+    #globeViz canvas {
+      display: block;
+      outline: none;
+    }
+
+    .map-overlay {
+      position: absolute;
+      left: 15px;
+      bottom: 15px;
+      max-width: calc(100% - 30px);
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--muted);
+      background: rgba(4, 17, 31, .76);
+      backdrop-filter: blur(10px);
+      font-size: 11px;
+      pointer-events: none;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 7px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .map-footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 18px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    footer {
+      padding: 18px 4px 5px;
+      color: #718ba3;
+      font-size: 11px;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    .loading {
+      position: absolute;
+      z-index: 2;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      background: rgba(4, 16, 29, .7);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .loading.hidden {
+      display: none;
+    }
+
+    @media (max-width: 950px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        order: 2;
+      }
+
+      .map-panel {
+        order: 1;
+      }
+
+      #globeWrap {
+        height: 55vh;
+        min-height: 350px;
+      }
+
+      .atm-list {
+        max-height: 430px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .app {
+        padding: 10px;
+      }
+
+      header {
+        padding: 15px;
+      }
+
+      .header-tag {
+        font-size: 10px;
+      }
+
+      .sidebar {
+        padding: 15px;
+      }
+
+      .map-header {
+        padding: 14px;
+      }
+
+      #globeWrap {
+        min-height: 320px;
+        height: 48vh;
+      }
+
+      .map-overlay {
+        font-size: 10px;
+      }
+
+      .map-tools {
+        width: 100%;
+      }
+
+      .map-tools .btn {
+        flex: 1;
+      }
+    }
+  </style>
 </head>
+
 <body>
-<header><div class="logo">🏧</div><div><h1>BW ATM Finder</h1><p>Explore the globe. Find ATMs across Botswana.</p></div></header>
-<div class="layout">
-  <aside class="sidebar">
-    <div class="filters">
-      <input id="searchInput" placeholder="Search town, landmark, address or ATM…" aria-label="Search ATMs">
-      <div class="row">
-        <select id="bankFilter" aria-label="Filter by bank">
-          <option value="">All Banks</option>
-          <option>Stanbic Bank Botswana</option><option>First National Bank (FNB) Botswana</option>
-          <option>Standard Chartered Bank Botswana</option><option>Absa Bank Botswana</option>
-          <option>Access Bank Botswana</option><option>Bank of Baroda Botswana</option><option>BBS Bank</option>
-        </select>
-        <select id="serviceFilter" aria-label="Filter by service">
-          <option value="">All Services</option><option value="cash_withdrawal">Cash Withdrawal</option>
-          <option value="deposit">Cash Deposit</option><option value="foreign_currency">Forex</option>
-        </select>
+  <main class="app">
+    <header class="glass">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">⌖</div>
+        <div>
+          <h1>BW ATM Finder</h1>
+          <p class="subtitle">Find bank ATMs and locations across Botswana</p>
+        </div>
       </div>
-      <div class="row"><button id="locateBtn" type="button">Use my location</button><button id="resetBtn" class="secondary" type="button">Reset globe</button></div>
-      <div id="count">Loading ATM directory…</div>
+      <div class="header-tag">BOTSWANA · 3D MAP</div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar glass">
+        <h2 class="section-title">Find an ATM</h2>
+
+        <div class="field">
+          <label for="searchInput">Search by town, bank or location</label>
+          <input
+            id="searchInput"
+            type="search"
+            placeholder="e.g. Gaborone, Francistown..."
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="field">
+          <label for="bankFilter">Bank</label>
+          <select id="bankFilter">
+            <option value="">All banks</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="serviceFilter">Service</label>
+          <select id="serviceFilter">
+            <option value="">All services</option>
+            <option value="cash withdrawal">Cash withdrawal</option>
+            <option value="cash deposit">Cash deposit</option>
+            <option value="balance enquiry">Balance enquiry</option>
+            <option value="mini statement">Mini statement</option>
+          </select>
+        </div>
+
+        <div class="button-row">
+          <button id="locateBtn" class="btn btn-primary" type="button">
+            ◎ Use my location
+          </button>
+          <button id="resetBtn" class="btn" type="button">
+            ↺ Reset globe
+          </button>
+        </div>
+
+        <div id="status" class="status" role="status" aria-live="polite">
+          Loading ATM directory…
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">Directory records</div>
+            <div id="totalCount" class="stat-value teal">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Mapped locations</div>
+            <div id="mappedCount" class="stat-value">0</div>
+          </div>
+        </div>
+
+        <div class="results-heading">
+          <h2>ATM results</h2>
+          <span id="resultCount" class="small-muted">0 found</span>
+        </div>
+
+        <div id="atmList" class="atm-list">
+          <div class="empty-state">Loading directory…</div>
+        </div>
+      </aside>
+
+      <section class="map-panel glass">
+        <div class="map-header">
+          <div>
+            <h2>Explore the ATM network</h2>
+            <p>Rotate the globe and select a marker to inspect a location.</p>
+          </div>
+
+          <div class="map-tools">
+            <button id="zoomIn" class="btn" type="button" aria-label="Zoom in">＋ Zoom</button>
+            <button id="zoomOut" class="btn" type="button" aria-label="Zoom out">－ Zoom</button>
+          </div>
+        </div>
+
+        <div id="globeWrap">
+          <div id="globeViz"></div>
+          <div id="mapLoading" class="loading">Preparing the interactive globe…</div>
+
+          <div class="map-overlay">
+            <div>ATM locations across Botswana</div>
+            <div class="legend">
+              <span><i class="dot" style="background:#4ee69a"></i> Verified</span>
+              <span><i class="dot" style="background:#ffb45d"></i> Unverified</span>
+              <span><i class="dot" style="background:#63a9ff"></i> Your location</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="map-footer">
+          <span>Map markers depend on available coordinates in the directory.</span>
+          <span>Directions open in Google Maps.</span>
+        </div>
+      </section>
     </div>
-    <div id="atmList"><div class="empty">Loading ATM locations…</div></div>
-    <div class="notice">ATM records and coordinates may need verification. Map tiles and globe imagery require an internet connection.</div>
-  </aside>
-  <section class="map-area" aria-label="Interactive 3D Earth globe">
-    <div id="globeViz"></div>
-    <div class="map-tools"><div class="map-chip">🌍 Interactive 3D Earth</div><div class="map-chip">Tap an ATM pin for details</div></div>
-    <div class="map-actions"><button class="secondary" id="zoomOut" type="button">−</button><button id="zoomIn" type="button">＋ Zoom</button></div>
-  </section>
-</div>
-<script src="https://unpkg.com/globe.gl"></script>
-<script>
-let atmsData=[], visibleAtms=[], globe, altitude=1.6;
-const $=id=>document.getElementById(id);
-function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function coords(a){return a.latitude!==null&&a.latitude!==undefined&&a.longitude!==null&&a.longitude!==undefined&&a.latitude!==''&&a.longitude!==''&&Number.isFinite(Number(a.latitude))&&Number.isFinite(Number(a.longitude));}
-function initGlobe(){
- if(typeof Globe!=='function'){$('globeViz').innerHTML='<div class="empty">The 3D globe library failed to load. Check your internet connection and refresh.</div>';return;}
- globe=Globe()($('globeViz'))
-  .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-  .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
-  .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
-  .showAtmosphere(true).atmosphereColor('#168bff').atmosphereAltitude(.18)
-  .pointLat(d=>Number(d.latitude)).pointLng(d=>Number(d.longitude))
-  .pointColor(d=>d.verification_status==='verified'?'#28dca0':'#ffbf57')
-  .pointAltitude(.025).pointRadius(d=>window.innerWidth<760?.28:.22)
-  .pointLabel(d=>`<div style="background:#07182b;color:white;padding:9px;border:1px solid #278cba;border-radius:8px;max-width:240px"><b>${esc(d.atm_name)}</b><br>${esc(d.bank)}<br><small>${esc(d.town)} · ${esc(d.address)}</small></div>`)
-  .onPointClick(d=>focusAtm(d));
- globe.pointOfView({lat:-22.3,lng:24.7,altitude},0);
- window.addEventListener('resize',()=>{if(globe)globe.width($('globeViz').clientWidth).height($('globeViz').clientHeight);});
-}
-function focusAtm(a){if(coords(a)&&globe){altitude=.35;globe.pointOfView({lat:Number(a.latitude),lng:Number(a.longitude),altitude},850);}}
-function render(list){
- visibleAtms=list;
- $('count').textContent=`Showing ${list.length} ATM location(s)`;
- const withCoords=list.filter(coords);
- if(globe)globe.pointsData(withCoords);
- if(!list.length){$('atmList').innerHTML='<div class="empty">No matching ATMs. Try another search or clear a filter.</div>';return;}
- $('atmList').innerHTML=list.map((a,i)=>{
-  const verified=a.verification_status==='verified';
-  const serviceTags=(a.services||[]).map(s=>`<span class="tag">${esc(String(s).replaceAll('_',' '))}</span>`).join('');
-  const direction=coords(a)?`<a class="directions" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(a.latitude+','+a.longitude)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">🧭 Directions in Google Maps</a>`:'<div class="address">📍 Coordinates to be confirmed</div>';
-  return `<article class="atm-card" data-index="${i}" tabindex="0">
-    <div style="display:flex;justify-content:space-between;gap:8px;align-items:start"><div class="atm-title">${esc(a.atm_name||'ATM location')}</div><span class="badge ${verified?'verified':'unverified'}">${esc((a.verification_status||'unverified').replaceAll('_',' '))}</span></div>
-    <div class="bank">${esc(a.bank||'Bank not specified')}</div>
-    <div class="address">📍 <b>${esc(a.town||'Town unknown')}</b> — ${esc(a.address||'Address not listed')}${a.landmark?' · '+esc(a.landmark):''}</div>
-    <div class="tags">${serviceTags}</div>${direction}</article>`;
- }).join('');
- $('atmList').querySelectorAll('.atm-card').forEach(card=>{
-  const select=()=>focusAtm(list[Number(card.dataset.index)]);
-  card.addEventListener('click',select);card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select();}});
- });
-}
-function filterAtms(){
- const q=$('searchInput').value.trim().toLowerCase(),bank=$('bankFilter').value,service=$('serviceFilter').value;
- render(atmsData.filter(a=>{
-  const hay=[a.atm_name,a.bank,a.town,a.district,a.address,a.landmark].filter(Boolean).join(' ').toLowerCase();
-  return (!q||hay.includes(q))&&(!bank||a.bank===bank)&&(!service||(a.services||[]).some(s=>String(s).includes(service)));
- }));
-}
-async function loadAtms(){
- try{
-  const r=await fetch('./data/botswana_atms.json');
-  if(!r.ok)throw Error('Could not load ./data/botswana_atms.json');
-  const data=await r.json();if(!Array.isArray(data))throw Error('ATM database must be a JSON array.');
-  atmsData=data;filterAtms();
-  const valid=atmsData.filter(coords);
-  if(globe)globe.pointsData(valid);
-  if(valid.length&&globe){
-   const lat=valid.reduce((s,a)=>s+Number(a.latitude),0)/valid.length,lon=valid.reduce((s,a)=>s+Number(a.longitude),0)/valid.length;
-   globe.pointOfView({lat,lng:lon,altitude:2.2},900);
-  }
- }catch(e){
-  console.error(e);$('count').textContent='ATM database could not be loaded';
-  $('atmList').innerHTML=`<div class="empty">Could not load <code>data/botswana_atms.json</code>.<br><br>Check that your GitHub repository contains this file at that exact path. The app does not invent ATM locations.</div>`;
- }
-}
-$('searchInput').addEventListener('input',filterAtms);
-$('bankFilter').addEventListener('change',filterAtms);
-$('serviceFilter').addEventListener('change',filterAtms);
-$('resetBtn').addEventListener('click',()=>{altitude=1.6;if(globe)globe.pointOfView({lat:-22.3,lng:24.7,altitude},800);});
-$('zoomIn').addEventListener('click',()=>{if(globe){altitude=Math.max(.12,altitude*.72);const p=globe.pointOfView();globe.pointOfView({...p,altitude},500);}});
-$('zoomOut').addEventListener('click',()=>{if(globe){altitude=Math.min(5,altitude*1.35);const p=globe.pointOfView();globe.pointOfView({...p,altitude},500);}});
-$('locateBtn').addEventListener('click',()=>{
- if(!navigator.geolocation){alert('Location is not supported by this browser.');return;}
- $('locateBtn').disabled=true;$('locateBtn').textContent='Locating…';
- navigator.geolocation.getCurrentPosition(pos=>{
-  const {latitude,longitude}=pos.coords;
-  if(globe){altitude=.45;globe.pointOfView({lat:latitude,lng:longitude,altitude},900);}
-  const nearby=atmsData.filter(coords).map(a=>({...a,_distance:distance(latitude,longitude,Number(a.latitude),Number(a.longitude))})).sort((a,b)=>a._distance-b._distance);
-  $('searchInput').value='';
-  render(nearby);
-  $('count').textContent=`${nearby.length} directory record(s), sorted by distance from your location`;
-  $('atmList').querySelectorAll('.atm-card').forEach((card,i)=>{
-   const a=nearby[i],meta=card.querySelector('.address');
-   if(a&&meta)meta.insertAdjacentHTML('beforeend',`<br><b>${a._distance.toFixed(1)} km away</b>`);
-  });
-  $('locateBtn').disabled=false;$('locateBtn').textContent='Use my location';
- },()=>{alert('Could not access location. Allow location permission or use search.');$('locateBtn').disabled=false;$('locateBtn').textContent='Use my location';},{enableHighAccuracy:true,timeout:12000});
-});
-function distance(a,b,c,d){const rad=n=>n*Math.PI/180,dl=rad(c-a),dn=rad(d-b),x=Math.sin(dl/2)**2+Math.cos(rad(a))*Math.cos(rad(c))*Math.sin(dn/2)**2;return 6371*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
-initGlobe();loadAtms();
-</script>
-</body>
-</html>
+
+    <footer>
+      BW ATM Finder is a location directory, not a bank service. Always confirm ATM
+      availability and services with the relevant bank. A bank branch should not be
+      treated as a confirmed ATM unless its ATM availability has been verified.
+    </footer>
+  </main>
+
+  <!-- 3D globe library -->
+  <script src="https://unpkg.com/globe.gl"></script>
+
+  <script>
+    "use strict";
+
+    // =========================================================
+    // CONFIGURATION
+    // The directory should be stored at:
+    // data/botswana_atms.json
+    // =========================================================
+
+    const DATA_URL = "./data/botswana_atms.json";
+
+    const BOTSWANA_VIEW = {
+      lat: -22.3,
+      lng: 24.7,
+      altitude: 1.6
+    };
+
+    let atmsData = [];
+    let filteredAtms = [];
+    let globe = null;
+    let userLocation = null;
+    let altitude = BOTSWANA_VIEW.altitude;
+    let globeReady = false;
+
+    const $ = id => document.getElementById(id);
+
+    // =========================================================
+    // GENERAL HELPERS
+    // =========================================================
+
+    function escapeHTML(value) {
+      return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[character]);
+    }
+
+    function firstValue(record, keys, fallback = "") {
+      for (const key of keys) {
+        const value = record?.[key];
+
+        if (
+          value !== undefined &&
+          value !== null &&
+          String(value).trim() !== ""
+        ) {
+          return value;
+        }
+      }
+
+      return fallback;
+    }
+
+    function getName(record) {
+      return String(firstValue(record, [
+        "atm_name",
+        "name",
+        "location_name",
+        "branch_name",
+        "title"
+      ], "ATM location"));
+    }
+
+    function getBank(record) {
+      return String(firstValue(record, [
+        "bank",
+        "bank_name",
+        "institution"
+      ], "Bank not specified"));
+    }
+
+    function getTown(record) {
+      return String(firstValue(record, [
+        "town",
+        "city",
+        "village",
+        "locality"
+      ], ""));
+    }
+
+    function getAddress(record) {
+      return String(firstValue(record, [
+        "address",
+        "physical_address",
+        "location",
+        "landmark"
+      ], "Address not provided"));
+    }
+
+    function getServices(record) {
+      const value = firstValue(record, [
+        "services",
+        "service",
+        "atm_services"
+      ], []);
+
+      if (Array.isArray(value)) {
+        return value.map(item => String(item));
+      }
+
+      if (typeof value === "string") {
+        return value.split(/[,;|]/).map(item => item.trim()).filter(Boolean);
+      }
+
+      return [];
+    }
+
+    function getVerification(record) {
+      const value = String(firstValue(record, [
+        "verification_status",
+        "status",
+        "verification"
+      ], "")).toLowerCase();
+
+      return value === "verified" ||
+        value === "confirmed" ||
+        value === "official";
+    }
+
+    function getLatitude(record) {
+      return Number(firstValue(record, [
+        "latitude",
+        "lat",
+        "atm_latitude"
+      ], NaN));
+    }
+
+    function getLongitude(record) {
+      return Number(firstValue(record, [
+        "longitude",
+        "lng",
+        "lon",
+        "atm_longitude"
+      ], NaN));
+    }
+
+    function hasCoords(record) {
+      const lat = getLatitude(record);
+      const lng = getLongitude(record);
+
+      return Number.isFinite(lat) &&
+        Number.isFinite(lng) &&
+        lat >= -90 && lat <= 90 &&
+        lng >= -180 && lng <= 180;
+    }
+
+    function getDistanceKm(lat1, lon1, lat2, lon2) {
+      const earthRadiusKm = 6371;
+      const toRadians = degrees => degrees * Math.PI / 180;
+
+      const dLat = toRadians(lat2 - lat1);
+      const dLon = toRadians(lon2 - lon1);
+
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRadians(lat1)) *
+        Math.cos(toRadians(lat2)) *
+        Math.sin(dLon / 2) ** 2;
+
+      const safeA = Math.min(1, Math.max(0, a));
+
+      return earthRadiusKm * 2 * Math.atan2(
+        Math.sqrt(safeA),
+        Math.sqrt(1 - safeA)
+      );
+    }
+
+    function formatDistance(km) {
+      if (!Number.isFinite(km)) return "";
+
+      if (km < 1) {
+        return `${Math.round(km * 1000)} m away`;
+      }
+
+      return `${km.toFixed(1)} km away`;
+    }
+
+    function setStatus(message, type = "") {
+      const status = $("status");
+      status.textContent = message;
+      stat
