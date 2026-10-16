@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#061426">
 <meta name="description" content="Find ATM locations across Botswana with BW ATM Finder.">
-<title>BW ATM Finder — 3D Globe</title>
+<title>BW ATM Finder — Glass Edition</title>
 <style>
 :root {
   --bg: #061426;
-  --panel: rgba(11, 29, 50, 0.75);
-  --panel-border: rgba(170, 215, 245, 0.16);
+  --panel: rgba(11, 29, 50, 0.68);
+  --panel-border: rgba(170, 215, 245, 0.18);
   --text: #eef7ff;
   --muted: #9fb6cc;
   --teal: #00ffcc;
@@ -21,7 +21,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  background: radial-gradient(circle at 20% 20%, #0d2744 0%, #061426 70%);
+  background: radial-gradient(circle at 15% 15%, #0f3057 0%, #061426 70%);
   color: var(--text);
   height: 100vh;
   overflow: hidden;
@@ -32,24 +32,24 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(7, 24, 43, 0.85);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(7, 24, 43, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--panel-border);
   position: relative;
   z-index: 5;
 }
 .brand { display: flex; align-items: center; gap: 12px; }
 .logo {
-  width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center;
-  background: linear-gradient(135deg, #00a9b5, #0758bf); font-size: 22px;
-  box-shadow: 0 4px 15px rgba(0, 169, 181, 0.3);
+  width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center;
+  background: linear-gradient(135deg, #00ffcc, #168bff); font-size: 20px; color: #041b27;
+  box-shadow: 0 4px 20px rgba(0, 255, 204, 0.35);
 }
 header h1 { font-size: 18px; letter-spacing: -0.3px; }
 header p { font-size: 12px; color: var(--muted); }
 .badge-top {
   font-size: 10px; font-weight: 800; padding: 6px 12px; border-radius: 20px;
-  background: rgba(0, 255, 204, 0.08); border: 1px solid rgba(0, 255, 204, 0.25); color: var(--teal);
+  background: rgba(0, 255, 204, 0.1); border: 1px solid rgba(0, 255, 204, 0.3); color: var(--teal);
 }
 .layout {
   height: calc(100vh - 66px);
@@ -58,13 +58,14 @@ header p { font-size: 12px; color: var(--muted); }
 }
 .sidebar {
   background: var(--panel);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
   border-right: 1px solid var(--panel-border);
   display: flex;
   flex-direction: column;
   min-height: 0;
   z-index: 2;
+  box-shadow: 10px 0 30px rgba(0,0,0,0.3);
 }
 .filters {
   padding: 16px;
@@ -74,68 +75,75 @@ header p { font-size: 12px; color: var(--muted); }
   border-bottom: 1px solid var(--panel-border);
 }
 input, select {
-  width: 100%; min-width: 0; background: rgba(6, 20, 38, 0.8);
-  border: 1px solid rgba(42, 73, 104, 0.7); border-radius: 11px; padding: 11px 13px;
+  width: 100%; min-width: 0; background: rgba(6, 20, 38, 0.75);
+  border: 1px solid rgba(42, 73, 104, 0.6); border-radius: 12px; padding: 11px 13px;
   color: white; font: inherit; font-size: 13px; outline: none;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(10px);
 }
 input:focus, select:focus {
   border-color: var(--teal);
-  box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.12);
+  box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.15), inset 0 0 10px rgba(0, 255, 204, 0.05);
 }
 select option { background: #0b1d32; color: white; }
 .row { display: flex; gap: 8px; }
 .row > * { flex: 1; }
 button {
-  border: 0; border-radius: 11px; padding: 11px 14px;
-  background: linear-gradient(110deg, #0788ed, #00a9b5); color: white;
-  font-weight: 750; font-size: 12px; cursor: pointer; transition: opacity 0.2s;
+  border: 0; border-radius: 12px; padding: 11px 14px;
+  background: linear-gradient(110deg, #168bff, #00ffcc); color: #041b27;
+  font-weight: 800; font-size: 12px; cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 15px rgba(22, 139, 255, 0.25);
 }
-button:hover { opacity: 0.9; }
+button:hover { opacity: 0.92; transform: translateY(-1px); }
 button.secondary {
-  background: rgba(19, 45, 71, 0.7); border: 1px solid rgba(42, 74, 104, 0.8); color: var(--text);
+  background: rgba(19, 45, 71, 0.65); border: 1px solid rgba(42, 74, 104, 0.8); color: var(--text);
+  box-shadow: none;
 }
-button:disabled { opacity: .5; cursor: wait; }
+button:disabled { opacity: .5; cursor: wait; transform: none; }
 #statusMsg { font-size: 11px; color: var(--muted); padding: 0 2px; }
 #atmList {
   overflow-y: auto; flex: 1; min-height: 0; padding: 12px;
   display: flex; flex-direction: column; gap: 10px;
+  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent;
 }
 .atm-card {
-  background: rgba(12, 32, 53, 0.65); border: 1px solid var(--panel-border);
-  border-radius: 13px; padding: 13px; cursor: pointer;
-  transition: all 0.2s ease;
+  background: rgba(12, 32, 53, 0.55); border: 1px solid var(--panel-border);
+  border-radius: 14px; padding: 14px; cursor: pointer;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(12px);
 }
 .atm-card:hover {
   border-color: var(--teal);
-  background: rgba(15, 38, 63, 0.85);
-  transform: translateY(-1px);
+  background: rgba(15, 38, 63, 0.8);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 255, 204, 0.08);
 }
-.atm-title { font-weight: 750; color: #79dbe1; font-size: 14px; }
-.bank { font-size: 12px; font-weight: 650; margin-top: 3px; color: #d0e7ff; }
+.atm-title { font-weight: 800; color: #79dbe1; font-size: 14px; }
+.bank { font-size: 12px; font-weight: 700; margin-top: 3px; color: #d0e7ff; }
 .address { font-size: 12px; line-height: 1.45; color: var(--muted); margin: 6px 0; }
-.badge { display: inline-block; font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: 700; }
+.badge { display: inline-block; font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: 800; }
 .verified { background: rgba(40, 220, 160, 0.15); color: var(--green); border: 1px solid rgba(40, 220, 160, 0.3); }
 .unverified { background: rgba(255, 191, 87, 0.15); color: var(--orange); border: 1px solid rgba(255, 191, 87, 0.3); }
 .tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 7px; }
-.tag { font-size: 10px; padding: 3px 7px; background: rgba(19, 59, 67, 0.8); color: #a8eff0; border-radius: 6px; }
+.tag { font-size: 10px; padding: 3px 7px; background: rgba(0, 255, 204, 0.08); color: #a8eff0; border-radius: 6px; border: 1px solid rgba(0, 255, 204, 0.15); }
 .directions { display: inline-block; margin-top: 8px; color: #80c9ff; text-decoration: none; font-size: 12px; font-weight: 700; }
 .directions:hover { text-decoration: underline; }
-.map-area { position: relative; min-width: 0; min-height: 0; background: #020916; }
+.map-area { position: relative; min-width: 0; min-height: 0; background: rgba(2, 9, 22, 0.5); }
 #globeViz { width: 100%; height: 100%; min-height: 300px; }
 .map-tools {
   position: absolute; top: 16px; left: 16px; right: 16px;
-  display: flex; justify-content: space-between; gap: 8px; pointer-events: none;
+  display: flex; justify-content: space-between; gap: 8px; pointer-events: none; z-index: 4;
 }
 .map-tools > * { pointer-events: auto; }
 .map-chip {
-  font-size: 12px; padding: 9px 13px; border: 1px solid var(--panel-border);
-  background: rgba(6, 20, 38, 0.82); backdrop-filter: blur(10px);
-  border-radius: 11px; color: var(--text); box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  font-size: 12px; padding: 10px 14px; border: 1px solid var(--panel-border);
+  background: rgba(11, 29, 50, 0.75); backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 12px; color: var(--text); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
-.map-actions { position: absolute; right: 16px; bottom: 16px; display: flex; gap: 8px; }
-.notice { font-size: 11px; color: var(--muted); line-height: 1.45; padding: 12px 16px; border-top: 1px solid var(--panel-border); background: rgba(4, 15, 29, 0.4); }
-.empty { padding: 20px; text-align: center; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.map-actions { position: absolute; right: 16px; bottom: 16px; display: flex; gap: 8px; z-index: 4; }
+.notice { font-size: 11px; color: var(--muted); line-height: 1.45; padding: 12px 16px; border-top: 1px solid var(--panel-border); background: rgba(4, 15, 29, 0.3); }
+.empty { padding: 25px; text-align: center; color: var(--muted); font-size: 13px; line-height: 1.5; }
 @media(max-width: 760px) {
   body { overflow: auto; height: 100dvh; }
   .layout { height: calc(100dvh - 66px); display: flex; flex-direction: column; }
@@ -174,6 +182,7 @@ button:disabled { opacity: .5; cursor: wait; }
           <option>Absa Bank Botswana</option>
           <option>Access Bank Botswana</option>
           <option>Bank of Baroda Botswana</option>
+          <option>Ecobank Botswana</option>
           <option>BBS Bank</option>
         </select>
         <select id="serviceFilter" aria-label="Filter by service">
@@ -238,11 +247,11 @@ function initGlobe() {
     .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
     .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
     .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
-    .showAtmosphere(true).atmosphereColor('#168bff').atmosphereAltitude(0.18)
+    .showAtmosphere(true).atmosphereColor('#00ffcc').atmosphereAltitude(0.2)
     .pointLat(d => Number(d.latitude)).pointLng(d => Number(d.longitude))
     .pointColor(d => d.verification_status === 'verified' ? '#28dca0' : '#ffbf57')
     .pointAltitude(0.025).pointRadius(d => window.innerWidth < 760 ? 0.28 : 0.22)
-    .pointLabel(d => `<div style="background:rgba(7,24,43,0.9);color:white;padding:10px;border:1px solid rgba(0,255,204,0.3);border-radius:10px;max-width:240px;backdrop-filter:blur(8px)"><b>${esc(d.atm_name)}</b><br><span style="color:#00ffcc">${esc(d.bank)}</span><br><small>${esc(d.town)} · ${esc(d.address)}</small></div>`)
+    .pointLabel(d => `<div style="background:rgba(11,29,50,0.85);color:white;padding:10px;border:1px solid rgba(0,255,204,0.4);border-radius:12px;max-width:240px;backdrop-filter:blur(12px)"><b>${esc(d.atm_name)}</b><br><span style="color:#00ffcc">${esc(d.bank)}</span><br><small>${esc(d.town)} · ${esc(d.address)}</small></div>`)
     .onPointClick(d => focusAtm(d));
 
   globe.pointOfView({ lat: -22.3, lng: 24.7, altitude }, 0);
