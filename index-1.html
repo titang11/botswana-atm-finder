@@ -160,7 +160,7 @@ button:disabled { opacity: .5; cursor: wait; transform: none; }
 <body>
 <header>
   <div class="brand">
-    <div class="logo">🧱</div>
+    <div class="logo"></div>
     <div>
       <h1> Kgosi ATM </h1>
       <p>Interactive 3D Earth & Verified Directory</p>
@@ -291,7 +291,7 @@ function render(list) {
         <span class="badge ${verified ? 'verified' : 'unverified'}">${esc((a.verification_status || 'unverified').replaceAll('_', ' '))}</span>
       </div>
       <div class="bank">${esc(a.bank || 'Bank not specified')}</div>
-      <div class="address">📍 <b>${esc(a.town || 'Town unknown')}</b> — ${esc(a.address || 'Address not listed')}${a.landmark ? ' · '+esc(a.landmark) : ''}</div>
+      <div class="address"><b>${esc(a.town || 'Town unknown')}</b> — ${esc(a.address || 'Address not listed')}${a.landmark ? ' · '+esc(a.landmark) : ''}</div>
       <div class="tags">${serviceTags}</div>
       ${direction}
     </article>`;
